@@ -19,9 +19,9 @@ def main(page: ft.Page):
                 aws_access_key_id=r2_access_key_field.value,
                 aws_secret_access_key=r2_secret_key_field.value
             )
-            ft.dialog_alert(page, "S3 Client initialized successfully.")
+            ft.AlertDialog(page, "S3 Client initialized successfully.")
         except Exception as e:
-            ft.dialog_alert(page, f"Failed to initialize S3 client: {e}")
+            ft.AlertDialog(page, f"Failed to initialize S3 client: {e}")
 
     def fetch_posts(e):
         """Fetch posts from the API and populate JSON editor."""
@@ -30,19 +30,19 @@ def main(page: ft.Page):
             response.raise_for_status()
             posts = response.json()
             json_editor.value = json.dumps(posts, indent=4, ensure_ascii=False)
-            ft.dialog_alert(page, "Posts fetched successfully!")
+            ft.AlertDialog(page, "Posts fetched successfully!")
             page.update()
         except requests.RequestException as e:
-            ft.dialog_alert(page, f"Failed to fetch posts: {e}")
+            ft.AlertDialog(page, f"Failed to fetch posts: {e}")
 
     def post_json(updated_posts):
         """Send updated JSON data back to the API."""
         try:
             response = requests.post(api_url_field.value, json=updated_posts)
             response.raise_for_status()
-            ft.dialog_alert(page, "Posts updated successfully!")
+            ft.AlertDialog(page, "Posts updated successfully!")
         except requests.RequestException as e:
-            ft.dialog_alert(page, f"Failed to update posts: {e}")
+            ft.AlertDialog(page, f"Failed to update posts: {e}")
 
     def post_markdown_to_r2(contentnum, markdown_content):
         """Upload a markdown file to R2 bucket."""
@@ -53,14 +53,14 @@ def main(page: ft.Page):
             if 'Contents' in response:
                 # Delete the existing file
                 s3_client.delete_object(Bucket=r2_bucket_name_field.value, Key=file_name)
-                ft.dialog_alert(page, f"Existing file {file_name} deleted.")
+                ft.AlertDialog(page, f"Existing file {file_name} deleted.")
 
             # Upload the new file
             s3_client.put_object(Bucket=r2_bucket_name_field.value, Key=file_name, Body=markdown_content)
-            ft.dialog_alert(page, f"Markdown uploaded successfully as {file_name}.")
+            ft.AlertDialog(page, f"Markdown uploaded successfully as {file_name}.")
 
         except (BotoCoreError, ClientError) as e:
-            ft.dialog_alert(page, f"Failed to upload markdown to R2: {e}")
+            ft.AlertDialog(page, f"Failed to upload markdown to R2: {e}")
 
     def update_preview(e):
         """Updates the preview when the text field content changes."""
@@ -73,7 +73,7 @@ def main(page: ft.Page):
             updated_data = json.loads(json_editor.value)
             post_json(updated_data)
         except json.JSONDecodeError:
-            ft.dialog_alert(page, "Invalid JSON format")
+            ft.AlertDialog(page, "Invalid JSON format")
 
     def upload_markdown(e):
         """Upload the markdown content to R2."""
@@ -81,7 +81,7 @@ def main(page: ft.Page):
             contentnum = int(contentnum_field.value)
             post_markdown_to_r2(contentnum, text_field.value)
         except ValueError:
-            ft.dialog_alert(page, "Invalid content number")
+            ft.AlertDialog(page, "Invalid content number")
 
     # API and R2 Configuration Fields
     api_url_field = ft.TextField(label="API URL", value="https://<your-json-url>", width=400)
